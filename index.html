@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kage_OS">
+<title>Kage_OS Financeiro</title>
+<style>
+:root{--bg:#eef3f0;--card:#fff;--tx:#0b1a12;--mut:#5b6f64;--acc:#00864f;--grn:#00864f;--red:#c4153a;--warn:#b26a00;--bd:#b9cbc1;--in:#f6faf7;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#060a08;--card:#0b120e;--tx:#d7ffe9;--mut:#6f9a84;--acc:#00ff9c;--grn:#00ff9c;--red:#ff3b5c;--warn:#ffb020;--bd:#16402d;--in:#030604;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#060a08;--card:#0b120e;--tx:#d7ffe9;--mut:#6f9a84;--acc:#00ff9c;--grn:#00ff9c;--red:#ff3b5c;--warn:#ffb020;--bd:#16402d;--in:#030604;color-scheme:dark}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:14px;min-height:100%}
+.wrap{max-width:480px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;margin:4px 0 16px}
+h1{font-size:15px;letter-spacing:.12em;margin:0;color:var(--acc)}
+.cur{animation:b 1s steps(1) infinite}
+@keyframes b{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.cur{animation:none}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:3px;padding:14px;margin-bottom:14px}
+.lb{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.big{font-size:30px;font-weight:700;margin:2px 0}
+.g{color:var(--grn)}.r{color:var(--red)}
+input,textarea,select{width:100%;background:var(--in);color:var(--tx);border:1px solid var(--bd);border-radius:3px;padding:11px;font:inherit;font-size:16px;outline:0}
+input:focus,textarea:focus,select:focus{border-color:var(--acc)}
+button{background:transparent;color:var(--acc);border:1px solid var(--acc);border-radius:3px;padding:11px;font:inherit;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+button:active{background:var(--acc);color:var(--bg)}
+#f{display:flex;flex-direction:column;gap:8px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0;padding:10px;background:var(--in);border-left:2px solid var(--acc);font:inherit;font-size:13px}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.nav button{padding:6px 14px}
+.nav b{letter-spacing:.1em;text-transform:uppercase}
+.tres{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:12px;color:var(--mut)}
+.tres b{display:block;font-size:13px;margin-top:2px}
+.bar{display:block;height:8px;background:var(--in);border:1px solid var(--bd);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%}
+.k1{background:var(--grn)}.k2{background:var(--warn)}.k3{background:var(--red)}
+#lim{margin-top:12px}#lim:empty{display:none}
+.cb{display:grid;grid-template-columns:96px 1fr auto;gap:8px;align-items:center;padding:5px 0;font-size:12px}
+ul{list-style:none;margin:10px 0 0;padding:0;max-height:320px;overflow-y:auto}
+li{display:grid;grid-template-columns:42px 1fr auto 30px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px}
+li:last-child{border-bottom:0}
+li .d{color:var(--mut)}li .t{overflow-wrap:anywhere}
+li small{display:block;color:var(--mut);font-size:11px}
+li button{padding:2px 0;border-color:var(--bd);color:var(--mut);font-size:12px}
+.tr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.tr button{padding:10px 4px;font-size:11px}
+#st{margin-top:10px;font-size:11px;color:var(--mut)}
+.vazio{color:var(--mut);text-align:center;display:block;font-size:12px}
+#eye{padding:4px 10px;font-size:16px}
+.oculto .v{filter:blur(7px)}
+[hidden]{display:none!important}
+li[data-id]{cursor:pointer}li[data-id]:active{background:var(--in)}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.65);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto}
+.sheet{width:calc(100% - 24px);max-width:456px;margin:calc(12px + env(safe-area-inset-top,0px)) 12px 12px;background:var(--card);border:1px solid var(--acc);border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.tr2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+#ps{margin-top:8px;font-size:11px;color:var(--mut)}
+#e-msg{font-size:12px;color:var(--red);min-height:1em}
+.backup-reminder{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 12px;margin:-2px 0 14px;border:1px solid var(--warn);border-left:3px solid var(--warn);background:var(--card);font-size:11px}
+.backup-reminder b,.backup-reminder span{display:block}.backup-reminder span{color:var(--mut);margin-top:3px;line-height:1.4}
+.backup-reminder.ok{border-color:var(--grn);border-left-color:var(--grn)}.backup-reminder.bad{border-color:var(--red);border-left-color:var(--red)}
+.backup-reminder button{padding:8px;font-size:10px;white-space:nowrap}
+.helper{font-size:11px;line-height:1.5;color:var(--mut);margin:8px 0}
+.rec-total{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--mut)}
+.rec-total b{color:var(--acc)}#rf{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.rec-fields{display:grid;grid-template-columns:1fr 100px;gap:8px}
+.rec-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 8px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.rec-main{min-width:0;overflow-wrap:anywhere}.rec-main b{font-size:13px}.rec-main small{display:block;color:var(--mut);font-size:11px;margin-top:3px}
+.rec-amount{font-size:13px;white-space:nowrap}.rec-paused{opacity:.55}.rec-actions{grid-column:1/-1;display:flex;gap:6px}
+.rec-actions button{padding:5px 8px;border-color:var(--bd);color:var(--mut);font-size:10px}
+#lock{z-index:100;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px}
+#dots{font-size:26px;color:var(--acc)}
+#lt{min-height:1.4em;text-align:center;color:var(--mut);font-size:13px}
+#kp{display:grid;grid-template-columns:repeat(3,76px);gap:10px}
+#kp button{height:62px;padding:0;font-size:22px}
+#kp button[data-k="c"]{font-size:11px}
+body.trancado .wrap{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>KAGE_OS // FINANCEIRO<span class="cur">_</span></h1><button id="eye" type="button" aria-label="Ocultar valores">👁</button></header>
+
+  <section class="card">
+    <div class="lb">// saldo geral</div>
+    <div id="saldo" class="big v">R$ 0,00</div>
+  </section>
+
+  <section class="card">
+    <div class="nav"><button id="mp" type="button" aria-label="Mês anterior">◀</button><b id="ml"></b><button id="mn" type="button" aria-label="Próximo mês">▶</button></div>
+    <div class="tres">
+      <span>▲ entradas<b id="em" class="g v"></b></span>
+      <span>▼ saídas<b id="sm" class="r v"></b></span>
+      <span>= saldo do mês<b id="sdm" class="v"></b></span>
+    </div>
+    <div id="lim"></div>
+  </section>
+
+  <section id="bk-alert" class="backup-reminder" aria-live="polite">
+    <div><b id="bk-title">// backup pendente</b><span id="bk-detail">Os dados ficam neste navegador. Gere um JSON e guarde uma cópia fora do aparelho.</span></div>
+    <button id="bk-go" type="button">gerar JSON</button>
+  </section>
+
+  <section class="card">
+    <div class="lb">// terminal</div>
+    <form id="f">
+      <input id="in" type="text" placeholder="gasto 45,50 mercado · ganhei 1500 salário · ou cole a notificação" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="200">
+      <button type="submit">&gt; executar</button>
+    </form>
+    <pre id="out">Bot pronto. Digite ajuda para ver os comandos.</pre>
+  </section>
+
+  <section class="card">
+    <div class="lb">// gastos por categoria</div>
+    <div id="cats"></div>
+  </section>
+
+  <section class="card" id="fixos">
+    <div class="lb">// contas fixas / recorrentes</div>
+    <div class="rec-total"><span>previsto ativo por mês</span><b id="rc-total" class="v">R$ 0,00</b></div>
+    <form id="rf">
+      <input id="r-desc" type="text" placeholder="descrição (ex.: internet)" maxlength="100" autocomplete="off">
+      <div class="rec-fields"><input id="r-valor" type="text" inputmode="decimal" placeholder="valor (R$)" autocomplete="off"><input id="r-dia" type="number" inputmode="numeric" min="1" max="31" placeholder="dia venc." aria-label="Dia de vencimento"></div>
+      <input id="r-cat" type="text" placeholder="categoria opcional" maxlength="30" autocomplete="off">
+      <div class="tr2" style="margin-top:0"><button id="r-cancel" type="button" hidden>cancelar edição</button><button id="r-save" type="submit">adicionar conta</button></div>
+    </form>
+    <p class="helper">Controle de previsão mensal: não cria lançamentos automaticamente. Registre o gasto quando ele acontecer para evitar duplicidade.</p>
+    <div id="rc-list"></div>
+  </section>
+
+  <section class="card">
+    <div class="lb">// lançamentos do mês · toque para editar</div>
+    <input id="q" type="search" placeholder="buscar por descrição ou categoria" autocomplete="off">
+    <ul id="ls"></ul>
+  </section>
+
+  <section class="card" id="backup-area">
+    <div class="lb">// backup e exportação</div>
+    <textarea id="ta" rows="4" placeholder="Gere o backup ou o CSV e guarde o texto (Notas, e-mail). Para restaurar, cole o backup aqui e toque em restaurar."></textarea>
+    <div class="tr"><button id="bk" type="button">backup</button><button id="rs" type="button">restaurar</button><button id="cv" type="button">csv</button></div>
+    <p id="bk-note" class="helper">O lembrete só é zerado depois que você gerar o JSON, guardar a cópia fora do navegador e confirmar abaixo.</p>
+    <button id="bk-confirm" type="button" hidden>já guardei meu backup JSON</button>
+    <div id="st"></div>
+    <div class="lb" style="margin-top:14px">// segurança</div>
+    <div class="tr2"><button id="pa" type="button">ativar pin</button><button id="pd" type="button" hidden>desativar pin</button></div>
+    <div id="ps"></div>
+  </section>
+</div>
+<div id="ed" class="ov" hidden>
+  <div class="sheet">
+    <div class="lb">// editar lançamento</div>
+    <select id="e-tipo"><option value="SAIDA">▼ saída</option><option value="ENTRADA">▲ entrada</option></select>
+    <input id="e-valor" type="text" inputmode="decimal" placeholder="valor (ex.: 45,90)" autocomplete="off">
+    <input id="e-desc" type="text" placeholder="descrição" maxlength="200" autocomplete="off">
+    <input id="e-cat" type="text" placeholder="categoria (vazio = automática)" maxlength="30" autocomplete="off">
+    <div id="e-msg"></div>
+    <div class="tr2" style="margin-top:0"><button id="e-no" type="button">cancelar</button><button id="e-ok" type="button">salvar</button></div>
+  </div>
+</div>
+<div id="lock" class="ov" hidden>
+  <div class="lb">// acesso restrito</div>
+  <div id="dots"></div>
+  <div id="lt"></div>
+  <div id="kp"></div>
+  <button id="lc" type="button" hidden>cancelar</button>
+</div>
+<script>
+var KEY = "kage_transacoes", CK = "kage_cfg", REC_KEY = "kage_recorrentes", BK_KEY = "kage_backup_confirmado", MOD_KEY = "kage_dados_alterados_em";
+var tx = [], fixos = [], cfg = { limite: 0, oculto: false }, okSt = true, backupSavedAt = 0, dadosModificadosEm = 0, backupGerado = false, backupGeradoEm = 0, editRecId = null;
+var MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+var hoje = new Date(), sel = { y: hoje.getFullYear(), m: hoje.getMonth() };
+var G = ["gasto", "gastei", "saida"], E = ["ganhei", "entrada"], R = ["resumo", "saldo", "extrato"];
+var CATS = [
+  ["Alimentação", "mercado supermercado padaria restaurante lanche ifood almoco jantar cafe feira acougue pizza hamburguer"],
+  ["Transporte", "uber 99 gasolina posto combustivel onibus metro estacionamento pedagio"],
+  ["Moradia", "aluguel condominio luz energia agua internet gas"],
+  ["Saúde", "farmacia remedio consulta medico dentista exame"],
+  ["Lazer", "cinema netflix spotify bar show viagem jogo streaming"],
+  ["Educação", "curso escola faculdade livro mensalidade"],
+  ["Compras", "roupa loja shopping amazon shopee"]
+];
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function sem(s) { return s.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+function cap(s) { s = s.trim(); return s.charAt(0).toUpperCase() + s.slice(1); }
+function brl(c) {
+  var a = Math.abs(c), r = Math.floor(a / 100), ct = String(a % 100).padStart(2, "0");
+  return (c < 0 ? "-" : "") + "R$ " + String(r).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "," + ct;
+}
+function parseValor(t) {
+  var s = t.trim().replace("R$", "").trim();
+  if (/^\d{1,3}(\.\d{3})+(,\d{1,2})?$/.test(s)) s = s.replace(/\./g, "");
+  s = s.replace(",", ".");
+  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
+  var c = Math.round(parseFloat(s) * 100);
+  return c > 0 ? c : null;
+}
+function parseNotif(t) {
+  var m = t.match(/R\$\s*(\d+(?:\.\d{3})*(?:,\d{1,2})?)/);
+  if (!m) return null;
+  var c = parseValor(m[1]);
+  if (!c) return null;
+  var n = sem(t.toLowerCase());
+  var tipo = ["receb", "deposito", "estorno"].some(function (p) { return n.indexOf(p) >= 0; }) ? "ENTRADA" : "SAIDA";
+  var d = t.match(/R\$\s*[\d.,]+\s+(?:no|na|em|de|do|da|para)\s+(.+?)\.?\s*$/i);
+  return { valor: c, tipo: tipo, descricao: d ? d[1] : t };
+}
+function categoria(desc, tipo) {
+  if (tipo === "ENTRADA") return "Renda";
+  var ws = sem(desc.toLowerCase()).split(/[^a-z0-9]+/);
+  for (var i = 0; i < CATS.length; i++) {
+    var ks = CATS[i][1].split(" ");
+    for (var j = 0; j < ks.length; j++) {
+      var k = ks[j];
+      if (ws.some(function (w) { return k.length > 3 ? w.indexOf(k) === 0 : w === k; })) return CATS[i][0];
+    }
+  }
+  return "Outros";
+}
+function extrair(texto) {
+  var cat = null, data = Date.now();
+  texto = texto.replace(/#(\S+)/, function (_, t) { cat = cap(t.replace(/_/g, " ")).slice(0, 30); return ""; });
+  texto = texto.replace(/@(\d{1,2})\/(\d{1,2})/, function (_, d, m) {
+    var dt = new Date(new Date().getFullYear(), +m - 1, +d, 12);
+    if (dt.getMonth() === +m - 1) { if (dt.getTime() > Date.now() + 864e5) dt.setFullYear(dt.getFullYear() - 1); data = dt.getTime(); }
+    return "";
+  });
+  return { desc: texto.replace(/\s+/g, " ").trim(), cat: cat, data: data };
+}
+function limpar(arr) {
+  return (Array.isArray(arr) ? arr : []).filter(function (t) {
+    return t && (t.tipo === "ENTRADA" || t.tipo === "SAIDA") && Number.isInteger(t.valor) && t.valor > 0;
+  }).map(function (t) {
+    var d = String(t.descricao || "").slice(0, 200);
+    return { id: t.id || Date.now() * 1000 + Math.floor(Math.random() * 1000), data: typeof t.data === "number" ? t.data : Date.now(),
+             tipo: t.tipo, valor: t.valor, descricao: d, cat: t.cat ? String(t.cat).slice(0, 30) : categoria(d, t.tipo), origem: t.origem || "MANUAL" };
+  });
+}
+function limparFixos(arr) {
+  return (Array.isArray(arr) ? arr : []).filter(function (x) {
+    return x && Number.isInteger(x.valor) && x.valor > 0 && Number.isInteger(Number(x.dia)) && Number(x.dia) >= 1 && Number(x.dia) <= 31;
+  }).map(function (x) {
+    var d = String(x.descricao || "").trim().slice(0, 100);
+    if (!d) return null;
+    return { id: Number.isSafeInteger(x.id) ? x.id : Date.now() * 1000 + Math.floor(Math.random() * 1000), descricao: d,
+      valor: x.valor, cat: x.cat ? String(x.cat).slice(0, 30) : categoria(d, "SAIDA"), dia: Number(x.dia), ativo: x.ativo !== false };
+  }).filter(function (x) { return !!x; });
+}
+try { tx = limpar(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch (e) { tx = []; okSt = false; }
+try {
+  var c0 = JSON.parse(localStorage.getItem(CK) || "{}");
+  if (Number.isInteger(c0.limite) && c0.limite > 0) cfg.limite = c0.limite;
+  cfg.oculto = !!c0.oculto;
+} catch (e) {}
+try { fixos = limparFixos(JSON.parse(localStorage.getItem(REC_KEY) || "[]")); } catch (e) { fixos = []; }
+try { var bkt = Number(localStorage.getItem(BK_KEY)); if (Number.isSafeInteger(bkt) && bkt > 0 && bkt <= Date.now()) backupSavedAt = bkt; } catch (e) { okSt = false; }
+try { var mtk = Number(localStorage.getItem(MOD_KEY)); if (Number.isSafeInteger(mtk) && mtk > 0 && mtk <= Date.now()) dadosModificadosEm = mtk; } catch (e) { okSt = false; }
+function marcarModificacao() { dadosModificadosEm = Math.max(Date.now(), dadosModificadosEm + 1, backupSavedAt + 1); localStorage.setItem(MOD_KEY, String(dadosModificadosEm)); }
+function salvar() { try { localStorage.setItem(KEY, JSON.stringify(tx)); localStorage.setItem(CK, JSON.stringify(cfg)); marcarModificacao(); } catch (e) { okSt = false; } }
+function salvarFixos() { try { localStorage.setItem(REC_KEY, JSON.stringify(fixos)); marcarModificacao(); } catch (e) { okSt = false; } }
+
+function add(tipo, valor, desc, origem, cat, data) {
+  tx.push({ id: Date.now() * 1000 + Math.floor(Math.random() * 1000), data: data || Date.now(), tipo: tipo, valor: valor,
+            descricao: desc.slice(0, 200), cat: cat || categoria(desc, tipo), origem: origem });
+  salvar(); render();
+}
+function noMes(x) { var d = new Date(x.data); return d.getFullYear() === sel.y && d.getMonth() === sel.m; }
+function totais(y, m) {
+  var o = { ent: 0, sai: 0, em: 0, sm: 0 };
+  tx.forEach(function (t) {
+    var d = new Date(t.data), mes = d.getFullYear() === y && d.getMonth() === m;
+    if (t.tipo === "ENTRADA") { o.ent += t.valor; if (mes) o.em += t.valor; } else { o.sai += t.valor; if (mes) o.sm += t.valor; }
+  });
+  return o;
+}
+function avisoLimite() {
+  if (!cfg.limite) return "";
+  var n = new Date(), p = Math.round(totais(n.getFullYear(), n.getMonth()).sm * 100 / cfg.limite);
+  return p >= 100 ? "\n🚨 Limite do mês estourado (" + p + "%)." : p >= 80 ? "\n⚠️ Você já usou " + p + "% do limite do mês." : "";
+}
+function renderBackupReminder() {
+  var tom = "", titulo = "// backup pendente", detalhe = "Ainda não há backup confirmado. Os dados ficam neste navegador; gere um JSON e guarde-o fora do aparelho.";
+  if (!okSt) {
+    tom = "bad"; titulo = "// risco: armazenamento local indisponível";
+    detalhe = "Esta sessão pode não persistir ao fechar o navegador. Gere um JSON e salve-o fora daqui agora.";
+  } else if (backupSavedAt) {
+    var dias = Math.floor((Date.now() - backupSavedAt) / 86400000), data = new Date(backupSavedAt).toLocaleDateString("pt-BR");
+    if (dadosModificadosEm > backupSavedAt) { tom = "bad"; titulo = "// novos dados sem backup"; detalhe = "Houve alterações desde o backup de " + data + ". Gere e guarde um JSON atualizado."; }
+    else if (dias >= 30) { tom = "bad"; titulo = "// backup desatualizado · " + dias + " dias"; detalhe = "Último backup confirmado em " + data + ". Gere e guarde um JSON atualizado."; }
+    else { tom = "ok"; titulo = "// backup em dia · " + data; detalhe = dias === 0 ? "Backup confirmado hoje. Renove a cópia em até 30 dias." : "Backup confirmado há " + dias + " dia(s). Novo lembrete em " + (30 - dias) + " dia(s)."; }
+  }
+  $("bk-alert").className = "backup-reminder" + (tom ? " " + tom : "");
+  $("bk-title").textContent = titulo;
+  $("bk-detail").textContent = detalhe;
+}
+function renderFixos() {
+  var ativos = fixos.filter(function (x) { return x.ativo; }), total = ativos.reduce(function (s, x) { return s + x.valor; }, 0);
+  $("rc-total").textContent = brl(total);
+  var lista = fixos.slice().sort(function (a, b) { return a.dia - b.dia || a.descricao.localeCompare(b.descricao); });
+  $("rc-list").innerHTML = lista.map(function (x) {
+    return '<div class="rec-row' + (x.ativo ? "" : " rec-paused") + '"><div class="rec-main"><b>' + esc(x.descricao) + '</b><small>Vence dia ' + x.dia + " · " + esc(x.cat) + " · mensal" + (x.ativo ? "" : " · pausada") + '</small></div>' +
+      '<b class="rec-amount v">' + brl(x.valor) + '</b><div class="rec-actions"><button type="button" data-rec="edit" data-id="' + x.id + '">editar</button><button type="button" data-rec="toggle" data-id="' + x.id + '">' + (x.ativo ? "pausar" : "reativar") + '</button><button type="button" data-rec="delete" data-id="' + x.id + '">excluir</button></div></div>';
+  }).join("") || '<span class="vazio">Nenhuma conta fixa cadastrada.</span>';
+}
+function render() {
+  document.body.classList.toggle("oculto", cfg.oculto);
+  var t = totais(sel.y, sel.m), saldo = t.ent - t.sai, sdm = t.em - t.sm;
+  $("saldo").textContent = brl(saldo);
+  $("saldo").className = "big v " + (saldo < 0 ? "r" : "g");
+  $("ml").textContent = MESES[sel.m] + "/" + sel.y;
+  $("em").textContent = brl(t.em);
+  $("sm").textContent = brl(t.sm);
+  $("sdm").textContent = brl(sdm);
+  $("sdm").className = "v " + (sdm < 0 ? "r" : "g");
+
+  if (cfg.limite) {
+    var pc = Math.round(t.sm * 100 / cfg.limite), w = Math.min(100, pc);
+    $("lim").innerHTML = '<div class="lb">// limite do mês · ' + pc + '% de <span class="v">' + brl(cfg.limite) + '</span></div><span class="bar"><i class="' + (pc >= 100 ? "k3" : pc >= 80 ? "k2" : "k1") + '" style="width:' + w + '%"></i></span>';
+  } else { $("lim").innerHTML = ""; }
+
+  var cs = Object.create(null);
+  tx.forEach(function (x) { if (x.tipo === "SAIDA" && noMes(x)) cs[x.cat] = (cs[x.cat] || 0) + x.valor; });
+  var arr = Object.keys(cs).map(function (k) { return [k, cs[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+  $("cats").innerHTML = arr.map(function (p) {
+    return '<div class="cb"><span>' + esc(p[0]) + '</span><span class="bar"><i class="k1" style="width:' + Math.round(p[1] * 100 / t.sm) + '%"></i></span><b class="v">' + brl(p[1]) + "</b></div>";
+  }).join("") || '<span class="vazio">Sem gastos neste mês.</span>';
+
+  var q = sem($("q").value.toLowerCase().trim());
+  var lista = tx.filter(function (x) { return noMes(x) && (!q || sem((x.descricao + " " + x.cat).toLowerCase()).indexOf(q) >= 0); })
+    .sort(function (a, b) { return b.data - a.data; }).slice(0, 80);
+  $("ls").innerHTML = lista.map(function (x) {
+    var d = new Date(x.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), ent = x.tipo === "ENTRADA";
+    return '<li data-id="' + x.id + '"><span class="d">' + d + '</span><span class="t">' + esc(x.descricao) + "<small>" + esc(x.cat) + '</small></span><span class="v ' + (ent ? "g" : "r") + '">' +
+           (ent ? "+ " : "- ") + brl(x.valor) + '</span><button type="button" data-id="' + x.id + '" aria-label="Excluir">✕</button></li>';
+  }).join("") || '<li><span class="vazio" style="grid-column:1/-1">Nenhum lançamento neste mês.</span></li>';
+  $("st").textContent = okSt ? "● dados neste navegador; mantenha uma cópia JSON fora dele." : "● ARMAZENAMENTO INDISPONÍVEL: a sessão pode não persistir ao fechar.";
+  renderFixos();
+  renderBackupReminder();
+}
+function responder(texto) {
+  var tk = texto.trim().split(/\s+/), cmd = sem(tk[0]).toLowerCase();
+  var todos = G.concat(E, R, ["desfazer", "ajuda", "limite"]);
+  if (todos.indexOf(cmd) < 0) {
+    var n = parseNotif(texto);
+    if (n) { add(n.tipo, n.valor, n.descricao, "AUTO_NOTIF"); return "⚡ Notificação capturada: " + (n.tipo === "ENTRADA" ? "entrada" : "saída") + " de " + brl(n.valor) + " (" + n.descricao + ")" + (n.tipo === "SAIDA" ? avisoLimite() : ""); }
+  }
+  var gasto = G.indexOf(cmd) >= 0;
+  if (gasto || E.indexOf(cmd) >= 0) {
+    var ex1 = gasto ? "gasto 45,50 mercado" : "ganhei 1500 salário";
+    if (tk.length < 2) return "⚠️ Faltou o valor. Use: " + ex1;
+    var v = parseValor(tk[1]);
+    if (!v) return "❌ Valor inválido. Use por exemplo: " + ex1;
+    var ex = extrair(tk.slice(2).join(" "));
+    var desc = ex.desc ? cap(ex.desc) : (gasto ? "Gasto geral" : "Entrada geral");
+    var tipo = gasto ? "SAIDA" : "ENTRADA";
+    add(tipo, v, desc, "MANUAL", ex.cat, ex.data);
+    return (gasto ? "✅ Gasto de " : "💰 Entrada de ") + brl(v) + " registrado(a): " + desc + " [" + (ex.cat || categoria(desc, tipo)) + "]" + (gasto ? avisoLimite() : "");
+  }
+  if (cmd === "limite") {
+    if (tk.length < 2) return cfg.limite ? "Limite mensal atual: " + brl(cfg.limite) : "Nenhum limite definido. Use: limite 2000";
+    if (tk[1] === "0") { cfg.limite = 0; salvar(); render(); return "Limite removido."; }
+    var l = parseValor(tk[1]);
+    if (!l) return "❌ Valor inválido. Use: limite 2000";
+    cfg.limite = l; salvar(); render();
+    return "🎯 Limite de gastos do mês: " + brl(l);
+  }
+  if (R.indexOf(cmd) >= 0) {
+    var t = totais(sel.y, sel.m);
+    return "RESUMO " + MESES[sel.m].toUpperCase() + "/" + sel.y + "\nentradas: " + brl(t.em) + "\nsaídas: " + brl(t.sm) + "\nsaldo do mês: " + brl(t.em - t.sm) + "\nsaldo geral: " + brl(t.ent - t.sai);
+  }
+  if (cmd === "desfazer") {
+    var u = tx.pop();
+    if (!u) return "⚠️ Nenhum lançamento para desfazer.";
+    salvar(); render();
+    return "↩️ Removido: " + u.descricao + " (" + brl(u.valor) + ")";
+  }
+  return "COMANDOS\ngasto 45,50 mercado\nganhei 1500 salário\ngasto 30 uber #trabalho @05/11\n   (categoria e data são opcionais)\nlimite 2000   (limite 0 remove)\nresumo · desfazer\n\nOu cole uma notificação do banco (ex.: Compra aprovada de R$ 89,90 no Posto X).";
+}
+function mover(d) { sel.m += d; if (sel.m < 0) { sel.m = 11; sel.y--; } if (sel.m > 11) { sel.m = 0; sel.y++; } render(); }
+function q(s) { s = String(s); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }
+
+var comandoURL = null;
+function lerComandoURL() {
+  try {
+    var u = new URL(window.location.href), ps = u.searchParams, nomes = ["cmd", "texto", "notif"], encontrado = null, tinhaParametro = false;
+    nomes.forEach(function (nome) {
+      if (ps.has(nome)) {
+        tinhaParametro = true;
+        var valor = ps.get(nome) || "";
+        if (encontrado === null && valor.trim()) encontrado = valor.trim();
+        ps.delete(nome);
+      }
+    });
+    if (tinhaParametro) {
+      var limpa = u.pathname + (ps.toString() ? "?" + ps.toString() : "") + u.hash;
+      try { window.history.replaceState(window.history.state, "", limpa); } catch (e) {}
+    }
+    if (encontrado !== null) comandoURL = encontrado;
+  } catch (e) {}
+}
+function executarComandoURL() {
+  if (comandoURL === null) return;
+  var texto = comandoURL; comandoURL = null;
+  if (texto.length > 200) { $("out").textContent = "❌ Parâmetro URL longo demais (máximo de 200 caracteres). Nada foi registrado."; return; }
+  $("in").value = texto;
+  $("out").textContent = responder(texto);
+  $("in").value = "";
+}
+
+$("f").addEventListener("submit", function (ev) {
+  ev.preventDefault();
+  var t = $("in").value.trim();
+  if (!t) return;
+  $("out").textContent = responder(t);
+  $("in").value = "";
+});
+$("ls").addEventListener("click", function (ev) {
+  var b = ev.target.closest("button");
+  if (!b) { var li = ev.target.closest("li"); if (li) abrirEdicao(li.getAttribute("data-id")); return; }
+  var id = b.getAttribute("data-id");
+  tx = tx.filter(function (x) { return String(x.id) !== id; });
+  salvar(); render();
+  $("out").textContent = "🗑️ Lançamento excluído.";
+});
+function limparFormRec() {
+  editRecId = null; $("rf").reset(); $("r-save").textContent = "adicionar conta"; $("r-cancel").hidden = true;
+}
+$("rf").addEventListener("submit", function (ev) {
+  ev.preventDefault();
+  var emEdicao = editRecId !== null, d = $("r-desc").value.trim().slice(0, 100), v = parseValor($("r-valor").value), dia = Number($("r-dia").value), cat = $("r-cat").value.trim().slice(0, 30);
+  if (!d) { $("out").textContent = "❌ Informe a descrição da conta fixa."; return; }
+  if (!v) { $("out").textContent = "❌ Valor inválido. Use por exemplo: 89,90"; return; }
+  if (!Number.isInteger(dia) || dia < 1 || dia > 31) { $("out").textContent = "❌ Informe um dia de vencimento entre 1 e 31."; return; }
+  if (editRecId !== null) {
+    var atual = fixos.filter(function (x) { return String(x.id) === String(editRecId); })[0];
+    if (!atual) { limparFormRec(); return; }
+    atual.descricao = d; atual.valor = v; atual.dia = dia; atual.cat = cat || categoria(d, "SAIDA");
+  } else {
+    fixos.push({ id: Date.now() * 1000 + Math.floor(Math.random() * 1000), descricao: d, valor: v, dia: dia, cat: cat || categoria(d, "SAIDA"), ativo: true });
+  }
+  salvarFixos(); limparFormRec(); render();
+  $("out").textContent = emEdicao ? "✏️ Compromisso mensal atualizado." : "📌 Compromisso mensal salvo como previsão.";
+});
+$("r-cancel").addEventListener("click", limparFormRec);
+$("rc-list").addEventListener("click", function (ev) {
+  var b = ev.target.closest("button");
+  if (!b) return;
+  var item = fixos.filter(function (x) { return String(x.id) === b.getAttribute("data-id"); })[0], acao = b.getAttribute("data-rec");
+  if (!item) return;
+  if (acao === "edit") {
+    editRecId = item.id; $("r-desc").value = item.descricao; $("r-valor").value = (item.valor / 100).toFixed(2).replace(".", ",");
+    $("r-dia").value = item.dia; $("r-cat").value = item.cat; $("r-save").textContent = "salvar alteração"; $("r-cancel").hidden = false;
+    $("r-desc").focus();
+  } else if (acao === "toggle") {
+    item.ativo = !item.ativo; salvarFixos(); render(); $("out").textContent = item.ativo ? "▶️ Compromisso reativado." : "⏸️ Compromisso pausado.";
+  } else if (acao === "delete" && window.confirm("Excluir esta previsão mensal? Nenhum lançamento será alterado.")) {
+    fixos = fixos.filter(function (x) { return x !== item; }); salvarFixos(); render(); $("out").textContent = "🗑️ Previsão mensal excluída.";
+  }
+});
+$("q").addEventListener("input", render);
+$("mp").addEventListener("click", function () { mover(-1); });
+$("mn").addEventListener("click", function () { mover(1); });
+$("eye").addEventListener("click", function () { cfg.oculto = !cfg.oculto; salvar(); render(); });
+$("bk-go").addEventListener("click", function () { $("backup-area").scrollIntoView({ behavior: "smooth", block: "start" }); $("bk").click(); });
+$("bk").addEventListener("click", function () {
+  var ta = $("ta");
+  backupGeradoEm = Date.now();
+  ta.value = JSON.stringify({ v: 3, geradoEm: new Date(backupGeradoEm).toISOString(), transacoes: tx, limite: cfg.limite, oculto: cfg.oculto, recorrentes: fixos });
+  backupGerado = true; $("bk-confirm").hidden = false;
+  $("bk-note").textContent = "JSON pronto. Copie e guarde fora do Brave; depois confirme abaixo para reiniciar o lembrete.";
+  ta.select();
+  $("out").textContent = "💾 Backup gerado na caixa de backup. Copie e guarde em Notas ou e-mail.";
+  try { navigator.clipboard.writeText(ta.value).then(function () { $("out").textContent += " (já copiado)"; }, function () {}); } catch (e) {}
+});
+$("bk-confirm").addEventListener("click", function () {
+  if (!backupGerado) return;
+  if (dadosModificadosEm > backupGeradoEm) { backupGerado = false; $("bk-confirm").hidden = true; render(); $("out").textContent = "⚠️ Os dados mudaram depois da geração. Gere um novo JSON antes de confirmar."; return; }
+  backupSavedAt = Date.now();
+  try { localStorage.setItem(BK_KEY, String(backupSavedAt)); } catch (e) { okSt = false; }
+  backupGerado = false; $("bk-confirm").hidden = true; render();
+  $("out").textContent = okSt ? "✅ Backup marcado como salvo. O próximo lembrete aparece em 30 dias." : "⚠️ Não foi possível guardar a confirmação no navegador; mantenha o JSON salvo fora dele.";
+  $("bk-note").textContent = "Confirme novamente só depois de guardar o JSON atualizado fora do navegador.";
+});
+$("ta").addEventListener("input", function () { if (backupGerado) { backupGerado = false; $("bk-confirm").hidden = true; } });
+$("cv").addEventListener("click", function () {
+  backupGerado = false; $("bk-confirm").hidden = true;
+  var l = ["data;tipo;categoria;valor;descricao"];
+  tx.slice().sort(function (a, b) { return a.data - b.data; }).forEach(function (x) {
+    l.push([new Date(x.data).toLocaleDateString("pt-BR"), x.tipo === "ENTRADA" ? "entrada" : "saida", q(x.cat), (x.valor / 100).toFixed(2).replace(".", ","), q(x.descricao)].join(";"));
+  });
+  var ta = $("ta");
+  ta.value = l.join("\n");
+  ta.select();
+  $("out").textContent = "📄 CSV gerado na caixa de backup. Copie e cole numa planilha.";
+});
+$("rs").addEventListener("click", function () {
+  try {
+    var o = JSON.parse($("ta").value);
+    var novo = limpar(Array.isArray(o) ? o : o.transacoes);
+    if (!novo.length) throw new Error("vazio");
+    var recBackup = Array.isArray(o.recorrentes) ? limparFixos(o.recorrentes) : null;
+    tx = novo;
+    if (Number.isInteger(o.limite) && o.limite >= 0) cfg.limite = o.limite;
+    if (typeof o.oculto === "boolean") cfg.oculto = o.oculto;
+    if (recBackup) { fixos = recBackup; salvarFixos(); }
+    salvar(); render();
+    $("out").textContent = "♻️ Restaurado: " + novo.length + " lançamento(s). Os dados anteriores foram substituídos." + (recBackup ? " Contas fixas: " + fixos.length + "." : " Previsões atuais mantidas (backup legado)." );
+  } catch (e) {
+    $("out").textContent = "❌ Backup inválido ou vazio. Nada foi alterado.";
+  }
+});
+render();
+
+/* ===== edição de lançamento ===== */
+var editId = null;
+function abrirEdicao(id) {
+  var x = tx.filter(function (t) { return String(t.id) === id; })[0];
+  if (!x) return;
+  editId = x.id;
+  $("e-tipo").value = x.tipo;
+  $("e-valor").value = (x.valor / 100).toFixed(2).replace(".", ",");
+  $("e-desc").value = x.descricao;
+  $("e-cat").value = x.cat;
+  $("e-msg").textContent = "";
+  $("ed").hidden = false;
+}
+function salvarEdicao() {
+  var x = tx.filter(function (t) { return t.id === editId; })[0];
+  if (!x) { $("ed").hidden = true; return; }
+  var v = parseValor($("e-valor").value), d = $("e-desc").value.trim().slice(0, 200);
+  if (!v) { $("e-msg").textContent = "❌ Valor inválido. Use por exemplo: 45,90"; return; }
+  if (!d) { $("e-msg").textContent = "❌ Informe uma descrição."; return; }
+  var tipo = $("e-tipo").value === "ENTRADA" ? "ENTRADA" : "SAIDA";
+  var cat = $("e-cat").value.trim().slice(0, 30);
+  if (!cat || (tipo !== x.tipo && cat === x.cat)) cat = categoria(d, tipo);
+  x.tipo = tipo; x.valor = v; x.descricao = d; x.cat = cat;
+  salvar(); render();
+  $("ed").hidden = true;
+  $("out").textContent = "✏️ Lançamento atualizado: " + d + " (" + brl(v) + ")";
+}
+$("e-no").addEventListener("click", function () { $("ed").hidden = true; });
+$("e-ok").addEventListener("click", salvarEdicao);
+$("ed").addEventListener("click", function (ev) { if (ev.target === this) this.hidden = true; });
+$("ed").addEventListener("keydown", function (ev) { if (ev.key === "Enter" && ev.target.tagName === "INPUT") salvarEdicao(); });
+
+/* ===== PIN de bloqueio ===== */
+var pin = null, fluxo = "", etapa = "", buf = "", tmp = "", fora = 0, ocupado = false;
+try { pin = JSON.parse(localStorage.getItem("kage_pin") || "null"); if (!pin || !pin.h || !pin.s) pin = null; } catch (e) { pin = null; }
+function gravarPin() {
+  try { if (pin) localStorage.setItem("kage_pin", JSON.stringify(pin)); else localStorage.removeItem("kage_pin"); } catch (e) { okSt = false; }
+}
+function sal() {
+  if (window.crypto && crypto.getRandomValues) return Array.from(crypto.getRandomValues(new Uint8Array(8))).map(function (x) { return x.toString(16).padStart(2, "0"); }).join("");
+  return String(Math.random()).slice(2);
+}
+function hash(p, s) {
+  var txt = s + ":" + p;
+  if (window.crypto && crypto.subtle) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)).then(function (b) {
+      return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, "0"); }).join("");
+    });
+  }
+  var h = 5381;
+  for (var i = 0; i < txt.length; i++) h = ((h << 5) + h + txt.charCodeAt(i)) | 0;
+  return Promise.resolve("d" + (h >>> 0).toString(16));
+}
+function titulo(msg) { $("lt").textContent = msg || { verifica: "digite o pin", novo: "crie um pin de 4 dígitos", conf: "repita o pin" }[etapa]; }
+function pontos() { var n = buf.length; $("dots").textContent = ("●".repeat(n) + "○".repeat(4 - n)).split("").join(" "); }
+function abrirPin(fl) {
+  fluxo = fl; etapa = fl === "ativar" ? "novo" : "verifica"; buf = ""; tmp = "";
+  $("ed").hidden = true;
+  $("lock").hidden = false;
+  $("lc").hidden = fl === "entrar";
+  if (fl === "entrar") document.body.classList.add("trancado");
+  titulo(); pontos();
+}
+function fecharPin() { $("lock").hidden = true; document.body.classList.remove("trancado"); buf = ""; }
+function atualizarSeg() {
+  $("pa").textContent = pin ? "alterar pin" : "ativar pin";
+  $("pd").hidden = !pin;
+  $("ps").textContent = pin
+    ? "🔒 PIN ativo: pedido ao abrir e após 30 s fora do app. Ele trava o acesso, mas os dados não são criptografados. Se esquecer o PIN, só limpando os dados do site (perde tudo sem backup)."
+    : "🔓 Sem PIN. Faça um backup antes de ativar.";
+}
+function processa() {
+  var b = buf; buf = ""; pontos();
+  if (etapa === "novo") { tmp = b; etapa = "conf"; titulo(); return; }
+  if (etapa === "conf") {
+    if (b !== tmp) { etapa = "novo"; titulo("Os PINs não conferem. Crie de novo."); return; }
+    ocupado = true;
+    var s = sal();
+    hash(b, s).then(function (h) {
+      pin = { s: s, h: h, f: 0, u: 0 }; gravarPin(); ocupado = false; fecharPin(); atualizarSeg();
+      $("out").textContent = okSt ? "🔒 PIN ativado." : "⚠️ PIN ativo só nesta sessão (armazenamento indisponível).";
+    }).catch(function () { ocupado = false; titulo("Erro ao salvar o PIN."); });
+    return;
+  }
+  if (!pin) { fecharPin(); return; }
+  var esp = (pin.u || 0) - Date.now();
+  if (esp > 0) { titulo("Muitas tentativas. Aguarde " + Math.ceil(esp / 1000) + " s."); return; }
+  ocupado = true;
+  hash(b, pin.s).then(function (h) {
+    ocupado = false;
+    if (h === pin.h) {
+      pin.f = 0; gravarPin();
+      if (fluxo === "entrar") { fecharPin(); executarComandoURL(); }
+      else if (fluxo === "desativar") { pin = null; gravarPin(); fecharPin(); atualizarSeg(); $("out").textContent = "🔓 PIN desativado."; }
+      else { etapa = "novo"; titulo(); }
+    } else {
+      pin.f = (pin.f || 0) + 1;
+      if (pin.f >= 5) { pin.u = Date.now() + 30000; pin.f = 0; }
+      gravarPin();
+      titulo("PIN incorreto." + (pin.u > Date.now() ? " Aguarde 30 s." : ""));
+    }
+  }).catch(function () { ocupado = false; titulo("Erro ao verificar o PIN."); });
+}
+function tecla(k) {
+  if (ocupado) return;
+  if (k === "c") buf = ""; else if (k === "d") buf = buf.slice(0, -1); else if (buf.length < 4) buf += k;
+  pontos();
+  if (buf.length === 4) processa();
+}
+["1", "2", "3", "4", "5", "6", "7", "8", "9", "c", "0", "d"].forEach(function (k) {
+  var b = document.createElement("button");
+  b.type = "button"; b.setAttribute("data-k", k);
+  b.textContent = k === "c" ? "limpar" : k === "d" ? "⌫" : k;
+  $("kp").appendChild(b);
+});
+$("kp").addEventListener("click", function (ev) { var b = ev.target.closest("button"); if (b) tecla(b.getAttribute("data-k")); });
+$("pa").addEventListener("click", function () { abrirPin(pin ? "alterar" : "ativar"); });
+$("pd").addEventListener("click", function () { abrirPin("desativar"); });
+$("lc").addEventListener("click", fecharPin);
+document.addEventListener("visibilitychange", function () {
+  if (document.hidden) fora = Date.now();
+  else if (pin && fora && Date.now() - fora > 30000 && $("lock").hidden) abrirPin("entrar");
+});
+atualizarSeg();
+lerComandoURL();
+if (pin) abrirPin("entrar"); else executarComandoURL();
+</script>
+</body>
+</html>
